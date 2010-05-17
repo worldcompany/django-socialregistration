@@ -1,5 +1,6 @@
 import re
 from django import template
+from django.conf import settings
 from django.template import resolve_variable, Variable
 
 register = template.Library()
@@ -54,3 +55,39 @@ class OpenIDErrorsNode(template.Node):
         request.session['openid_provider'] = ''
 
         return u''
+
+
+class AuthEnabledNode(template.Node):
+    def __init__(self, network, var_name):
+        self.network = network
+        self.var_name = var_name
+
+    def render(self, context):
+        if self.network.lower().strip() == 'facebook':
+            if getattr(settings, 'FACEBOOK_API_KEY', False) and getattr(settings, 'FACEBOOK_SECRET_KEY', False):
+                context[self.var_name] = True
+        elif self.network.lower().strip() == 'twitter':
+            if getattr(settings, 'TWITTER_CONSUMER_KEY', False) and getattr(settings, 'TWITTER_CONSUMER_SECRET_KEY', False) and getattr(settings, 'TWITTER_REQUEST_TOKEN_URL', False) and getattr(settings, 'TWITTER_ACCESS_TOKEN_URL', False) and getattr(settings, 'TWITTER_AUTHORIZATION_URL', False):
+                context[self.var_name] = True
+        else:
+            context[self.var_name] = False
+        return u''
+
+@register.tag
+def auth_enabled(parser, token):
+    """
+    Determine whether or not the requested service is configured and their login buttons should be displayed.
+    """
+
+    # This version uses a regular expression to parse tag contents.
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    m = re.search(r'(\w+) as (\w+)', arg)
+    if not m:
+        raise template.TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+    network, var_name = m.groups()
+    return AuthEnabledNode(network, var_name)
