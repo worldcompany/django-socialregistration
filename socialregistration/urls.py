@@ -35,22 +35,22 @@ if getattr(settings, 'TWITTER_CONSUMER_KEY', None) is not None:
     urlpatterns = urlpatterns + patterns('',
         url('^twitter/redirect/$', 'socialregistration.views.oauth_redirect',
             dict(
-                consumer_key=settings.TWITTER_CONSUMER_KEY,
-                secret_key=settings.TWITTER_CONSUMER_SECRET_KEY,
-                request_token_url=settings.TWITTER_REQUEST_TOKEN_URL,
-                access_token_url=settings.TWITTER_ACCESS_TOKEN_URL,
-                authorization_url=settings.TWITTER_AUTHORIZATION_URL,
+                consumer_key=getattr(settings, 'TWITTER_CONSUMER_KEY', ''),
+                secret_key=getattr(settings, 'TWITTER_CONSUMER_SECRET_KEY', ''),
+                request_token_url=getattr(settings, 'TWITTER_REQUEST_TOKEN_URL', ''),
+                access_token_url=getattr(settings, 'TWITTER_ACCESS_TOKEN_URL', ''),
+                authorization_url=getattr(settings, 'TWITTER_AUTHORIZATION_URL', ''),
                 callback_url='twitter_callback'
             ),
             name='twitter_redirect'),
 
         url('^twitter/callback/$', 'socialregistration.views.oauth_callback',
             dict(
-                consumer_key=settings.TWITTER_CONSUMER_KEY,
-                secret_key=settings.TWITTER_CONSUMER_SECRET_KEY,
-                request_token_url=settings.TWITTER_REQUEST_TOKEN_URL,
-                access_token_url=settings.TWITTER_ACCESS_TOKEN_URL,
-                authorization_url=settings.TWITTER_AUTHORIZATION_URL,
+                consumer_key=getattr(settings, 'TWITTER_CONSUMER_KEY', ''),
+                secret_key=getattr(settings, 'TWITTER_CONSUMER_SECRET_KEY', ''),
+                request_token_url=getattr(settings, 'TWITTER_REQUEST_TOKEN_URL', ''),
+                access_token_url=getattr(settings, 'TWITTER_ACCESS_TOKEN_URL', ''),
+                authorization_url=getattr(settings, 'TWITTER_AUTHORIZATION_URL', ''),
                 callback_url='twitter'
             ),
             name='twitter_callback'

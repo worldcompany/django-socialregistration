@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.inclusion_tag('socialregistration/facebook_js.html')
 def facebook_js():
-    return {'facebook_api_key' : settings.FACEBOOK_API_KEY, 'is_https' : bool(_https())}
+    return {'facebook_api_key' : getattr(settings, 'FACEBOOK_API_KEY', ''), 'is_https' : bool(_https())}
 
 @register.inclusion_tag('socialregistration/facebook_button.html', takes_context=True)
 def facebook_button(context):
