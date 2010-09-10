@@ -8,6 +8,8 @@ class FacebookProfile(models.Model):
     user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     uid = models.CharField(max_length=255, blank=False, null=False)
+    consumer_key = models.CharField('AKA access_token', max_length=128)
+    consumer_secret = models.CharField('AKA secret', max_length=128)
     
     def __unicode__(self):
         return u'%s: %s' % (self.user, self.uid)
@@ -19,10 +21,13 @@ class TwitterProfile(models.Model):
     user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     twitter_id = models.PositiveIntegerField()
-    
+    screenname = models.CharField(max_length=40)
+    consumer_key = models.CharField(max_length=128)
+    consumer_secret = models.CharField(max_length=128)
+
     def __unicode__(self):
         return u'%s: %s' % (self.user, self.twitter_id)
-    
+
     def authenticate(self):
         return authenticate(twitter_id=self.twitter_id)
 

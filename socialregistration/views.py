@@ -159,12 +159,12 @@ def facebook_connect(request, template='socialregistration/facebook.html',
         extra_context.update(dict(error=FB_ERROR))
         return render_to_response(template, extra_context,
             context_instance=RequestContext(request))
-    
+
     try:
         profile = FacebookProfile.objects.get(uid=request.facebook.uid)
     except FacebookProfile.DoesNotExist:
         profile = FacebookProfile.objects.create(user=request.user,
-            uid=request.facebook.uid)
+            uid=request.facebook.uid, consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
 
     return HttpResponseRedirect(_get_next(request))
 
@@ -200,7 +200,16 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
         try:
             profile = TwitterProfile.objects.get(twitter_id=user_info['id'])
         except TwitterProfile.DoesNotExist: # There can only be one profile!
-            profile = TwitterProfile.objects.create(user=request.user, twitter_id=user_info['id'])
+            try:
+                oauth_token = request.session['oauth_api.twitter.com_access_token']['oauth_token']
+            except KeyError:
+                oauth_token = ''
+            try:
+                oauth_token_secret = request.session['oauth_api.twitter.com_access_token']['oauth_token_secret']
+            except KeyError:
+                oauth_token_secret = ''
+
+            profile = TwitterProfile.objects.create(user=request.user, twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
 
         return HttpResponseRedirect(_get_next(request))
 
