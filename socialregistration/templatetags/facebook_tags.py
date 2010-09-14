@@ -5,8 +5,8 @@ from socialregistration.utils import _https
 register = template.Library()
 
 @register.inclusion_tag('socialregistration/facebook_js.html')
-def facebook_js():
-    return {'facebook_api_key' : getattr(settings, 'FACEBOOK_API_KEY', ''), 'is_https' : bool(_https()), 'MEDIA_URL': getattr(settings, 'MEDIA_URL', ''), 'STATIC_MEDIA_URL': getattr(settings, 'STATIC_MEDIA_URL', '')}
+def facebook_js(requested_perms=""):
+    return {'facebook_api_key' : getattr(settings, 'FACEBOOK_API_KEY', ''), 'is_https' : bool(_https()), 'requested_perms': requested_perms, 'MEDIA_URL': getattr(settings, 'MEDIA_URL', ''), 'STATIC_MEDIA_URL': getattr(settings, 'STATIC_MEDIA_URL', '')}
 
 @register.inclusion_tag('socialregistration/facebook_button.html', takes_context=True)
 def facebook_button(context):
