@@ -162,6 +162,9 @@ def facebook_connect(request, template='socialregistration/facebook.html',
 
     try:
         profile = FacebookProfile.objects.get(uid=request.facebook.uid)
+        profile.consumer_key = request.facebook.user['access_token']
+        profile.secret = request.facebook.user['secret']
+        profile.save()
     except FacebookProfile.DoesNotExist:
         profile = FacebookProfile.objects.create(user=request.user,
             uid=request.facebook.uid, consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
