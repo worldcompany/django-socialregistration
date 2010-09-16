@@ -14,15 +14,15 @@ class Migration(SchemaMigration):
         # Adding field 'TwitterProfile.object_id'
         db.add_column('socialregistration_twitterprofile', 'object_id', self.gf('django.db.models.fields.PositiveIntegerField')(default=0), keep_default=False)
         # Adding field 'TwitterProfile.content_type'
-        db.add_column('socialregistration_twitterprofile', 'content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['contenttypes.ContentType']), keep_default=False)
+        db.add_column('socialregistration_twitterprofile', 'content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['contenttypes.ContentType']), keep_default=False)
         # Adding field 'OpenIDProfile.object_id'
         db.add_column('socialregistration_openidprofile', 'object_id', self.gf('django.db.models.fields.PositiveIntegerField')(default=0), keep_default=False)
         # Adding field 'OpenIDProfile.content_type'
-        db.add_column('socialregistration_openidprofile', 'content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['contenttypes.ContentType']), keep_default=False)
+        db.add_column('socialregistration_openidprofile', 'content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['contenttypes.ContentType']), keep_default=False)
         # Adding field 'FacebookProfile.object_id'
         db.add_column('socialregistration_facebookprofile', 'object_id', self.gf('django.db.models.fields.PositiveIntegerField')(default=0), keep_default=False)
         # Adding field 'FacebookProfile.content_type'
-        db.add_column('socialregistration_facebookprofile', 'content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['contenttypes.ContentType']), keep_default=False)
+        db.add_column('socialregistration_facebookprofile', 'content_type', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['contenttypes.ContentType']), keep_default=False)
 
     def backwards(self, orm):
         # Deleting field 'TwitterProfile.object_id'
