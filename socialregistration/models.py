@@ -13,7 +13,6 @@ class FacebookProfile(models.Model):
     content_type = models.ForeignKey(ContentType)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     uid = models.CharField(max_length=255, blank=False, null=False)
     consumer_key = models.CharField('AKA access_token', max_length=128)
@@ -32,7 +31,6 @@ class TwitterProfile(models.Model):
     content_type = models.ForeignKey(ContentType)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     twitter_id = models.PositiveIntegerField()
     screenname = models.CharField(max_length=40, null=True)
@@ -52,7 +50,6 @@ class OpenIDProfile(models.Model):
     content_type = models.ForeignKey(ContentType)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     identity = models.TextField()
 
