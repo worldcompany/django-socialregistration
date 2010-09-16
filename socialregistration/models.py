@@ -21,7 +21,7 @@ class TwitterProfile(models.Model):
     user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     twitter_id = models.PositiveIntegerField()
-    screenname = models.CharField(max_length=40)
+    screenname = models.CharField(max_length=40, null=True)
     consumer_key = models.CharField(max_length=128)
     consumer_secret = models.CharField(max_length=128)
 
