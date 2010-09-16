@@ -2,9 +2,15 @@ from django.db import models
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from django.contrib.sites.models import Site 
 
 class FacebookProfile(models.Model):
+    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
     user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     uid = models.CharField(max_length=255, blank=False, null=False)
@@ -12,12 +18,16 @@ class FacebookProfile(models.Model):
     consumer_secret = models.CharField('AKA secret', max_length=128)
     
     def __unicode__(self):
-        return u'%s: %s' % (self.user, self.uid)
+        return u'%s: %s' % (self.content_object, self.uid)
     
     def authenticate(self):
         return authenticate(uid=self.uid)
 
 class TwitterProfile(models.Model):
+    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
     user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     twitter_id = models.PositiveIntegerField()
@@ -26,18 +36,22 @@ class TwitterProfile(models.Model):
     consumer_secret = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return u'%s: %s' % (self.user, self.twitter_id)
+        return u'%s: %s' % (self.content_object, self.twitter_id)
 
     def authenticate(self):
         return authenticate(twitter_id=self.twitter_id)
 
 class OpenIDProfile(models.Model):
+    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType)
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
     user = models.ForeignKey(User)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     identity = models.TextField()
     
     def __unicode__(self):
-        return u'OpenID Profile for %s, via provider %s' % (self.user, self.identity)
+        return u'OpenID Profile for %s, via provider %s' % (self.content_object, self.identity)
 
     def authenticate(self):
         return authenticate(identity=self.identity)
