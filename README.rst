@@ -20,6 +20,15 @@ Installation
 #. Add ``socialregistration`` to your ``INSTALLED_APPS`` settings of Django.
 #. Add ``socialregistration.urls`` to your ``urls.py`` file.
 
+Backwards Incompatibility
+=========================
+
+A necessary backwards-incompatible change was made 9/16/2010 to use Generic ForeignKeys instead of a direct tie to users. This change
+makes socialregistration more about authentication / linking of social accounts to any object (organizations, users, groups, etc.)
+The migration 0003_add_generic_relation_fields will add the necessary fields (object_id and content_type) 
+0004_migrate_existing_profiles will take all profiles created for your users and "convert" them to use Generic ForeignKeys
+instead. Another migration 0005_remove_user_tie will drop the "user" column.
+
 Configuration
 =============
 
