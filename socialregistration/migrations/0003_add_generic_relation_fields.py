@@ -7,7 +7,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     depends_on = (
-        ('socialregistration', '0002_add_oauth_key_fields.py'),
+        ('socialregistration', '0002_add_oauth_key_fields'),
     )
 
     def forwards(self, orm):
