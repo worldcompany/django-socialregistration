@@ -166,7 +166,7 @@ def facebook_connect(request, template='socialregistration/facebook.html',
         profile.secret = request.facebook.user['secret']
         profile.save()
     except FacebookProfile.DoesNotExist:
-        profile = FacebookProfile.objects.create(user=request.user,
+        profile = FacebookProfile.objects.create(content_object=request.user,
             uid=request.facebook.uid, consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
 
     return HttpResponseRedirect(_get_next(request))
@@ -212,7 +212,7 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
             except KeyError:
                 oauth_token_secret = ''
 
-            profile = TwitterProfile.objects.create(user=request.user, twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
+            profile = TwitterProfile.objects.create(content_object=request.user, twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
 
         return HttpResponseRedirect(_get_next(request))
 
@@ -313,7 +313,7 @@ def openid_callback(request, template='socialregistration/openid.html',
             try:
                 profile = OpenIDProfile.objects.get(identity=identity)
             except OpenIDProfile.DoesNotExist: # There can only be one profile with the same identity
-                profile = OpenIDProfile.objects.create(user=request.user,
+                profile = OpenIDProfile.objects.create(content_object=request.user,
                     identity=identity)
 
             return HttpResponseRedirect(_get_next(request))
