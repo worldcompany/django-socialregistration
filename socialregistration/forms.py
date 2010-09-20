@@ -29,7 +29,7 @@ class UserForm(forms.Form):
         self.user.username = self.cleaned_data.get('username')
         self.user.email = self.cleaned_data.get('email')
         self.user.save()
-        self.profile.user = self.user
+        self.profile.content_object = self.user
         self.profile.save()
         return self.user
 
@@ -60,6 +60,6 @@ class ClaimForm(forms.Form):
             raise forms.ValidationError(_("The password you entered was incorrect."))
 
     def save(self):
-        self.profile.user = self.user
+        self.profile.content_object = self.user
         self.profile.save()
         return self.user

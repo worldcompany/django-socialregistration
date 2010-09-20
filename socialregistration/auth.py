@@ -16,7 +16,7 @@ class FacebookAuth(Auth):
             return FacebookProfile.objects.get(
                 uid=uid,
                 site=Site.objects.get_current()
-            ).user
+            ).content_object
         except FacebookProfile.DoesNotExist:
             return None
 
@@ -26,7 +26,7 @@ class TwitterAuth(Auth):
             return TwitterProfile.objects.get(
                 twitter_id=twitter_id,
                 site=Site.objects.get_current()
-            ).user
+            ).content_object
         except TwitterProfile.DoesNotExist:
             return None
 
@@ -36,6 +36,6 @@ class OpenIDAuth(Auth):
             return OpenIDProfile.objects.get(
                 identity=identity,
                 site=Site.objects.get_current()
-            ).user
+            ).content_object
         except OpenIDProfile.DoesNotExist:
             return None
