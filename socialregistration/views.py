@@ -197,21 +197,20 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
     )
 
     user_info = client.get_user_info()
+    try:
+        oauth_token = request.session['oauth_api.twitter.com_access_token']['oauth_token']
+    except KeyError:
+        oauth_token = ''
+    try:
+        oauth_token_secret = request.session['oauth_api.twitter.com_access_token']['oauth_token_secret']
+    except KeyError:
+        oauth_token_secret = ''
 
     if request.user.is_authenticated():
         # Handling already logged in users connecting their accounts
         try:
             profile = TwitterProfile.objects.get(twitter_id=user_info['id'])
         except TwitterProfile.DoesNotExist: # There can only be one profile!
-            try:
-                oauth_token = request.session['oauth_api.twitter.com_access_token']['oauth_token']
-            except KeyError:
-                oauth_token = ''
-            try:
-                oauth_token_secret = request.session['oauth_api.twitter.com_access_token']['oauth_token_secret']
-            except KeyError:
-                oauth_token_secret = ''
-
             profile = TwitterProfile.objects.create(content_object=request.user, twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
 
         return HttpResponseRedirect(_get_next(request))
@@ -219,7 +218,7 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
     user = authenticate(twitter_id=user_info['id'])
 
     if user is None:
-        profile = TwitterProfile(twitter_id=user_info['id'])
+        profile = TwitterProfile(twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
         user = User()
         request.session['socialregistration_profile'] = profile
         request.session['socialregistration_user'] = user
