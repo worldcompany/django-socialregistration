@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 
 from socialregistration.models import (FacebookProfile, TwitterProfile, OpenIDProfile)
@@ -15,7 +16,8 @@ class FacebookAuth(Auth):
         try:
             return FacebookProfile.objects.get(
                 uid=uid,
-                site=Site.objects.get_current()
+                site=Site.objects.get_current(),
+                content_type=ContentType.objects.get_for_model(User),
             ).content_object
         except FacebookProfile.DoesNotExist:
             return None
@@ -25,7 +27,8 @@ class TwitterAuth(Auth):
         try:
             return TwitterProfile.objects.get(
                 twitter_id=twitter_id,
-                site=Site.objects.get_current()
+                site=Site.objects.get_current(),
+                content_type=ContentType.objects.get_for_model(User),
             ).content_object
         except TwitterProfile.DoesNotExist:
             return None
@@ -35,7 +38,8 @@ class OpenIDAuth(Auth):
         try:
             return OpenIDProfile.objects.get(
                 identity=identity,
-                site=Site.objects.get_current()
+                site=Site.objects.get_current(),
+                content_type=ContentType.objects.get_for_model(User),
             ).content_object
         except OpenIDProfile.DoesNotExist:
             return None
