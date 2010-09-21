@@ -218,10 +218,8 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
     user = authenticate(twitter_id=user_info['id'])
 
     if user is None:
-        profile = TwitterProfile(twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
-        user = User()
-        request.session['socialregistration_profile'] = profile
-        request.session['socialregistration_user'] = user
+        request.session['socialregistration_profile'] = TwitterProfile(twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
+        request.session['socialregistration_user'] = User()
         request.session['next'] = _get_next(request)
         return HttpResponseRedirect(reverse('socialregistration_setup'))
 
