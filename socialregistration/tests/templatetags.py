@@ -4,10 +4,24 @@ from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.test import TestCase
 
+class MockUser(object):
+    auth = False
+    def __init__(self, *args, **kwargs):
+        super(MockUser, self).__init__(*args, **kwargs)
+        if kwargs.get('authenticated', False):
+            self.auth = True
+
+    def is_authenticated(self):
+        return self.auth
+
 class MockHttpRequest(HttpRequest):
+
+    user = MockUser(authenticated=True)
 
     def __init__(self, *args, **kwargs):
         super(MockHttpRequest, self).__init__(*args, **kwargs)
+
+        self.user.is_authenticated()
 
         self.session = {}
 
@@ -124,3 +138,15 @@ class SocialRegistrationTemplateTagTests(TestCase):
         settings.TWITTER_REQUEST_TOKEN_URL = pre_conf['TWITTER_REQUEST_TOKEN_URL']
         settings.TWITTER_ACCESS_TOKEN_URL = pre_conf['TWITTER_ACCESS_TOKEN_URL']
         settings.TWITTER_AUTHORIZATION_URL = pre_conf['TWITTER_AUTHORIZATION_URL']
+
+    def test_object_to_twitter_button(self):
+        request = MockHttpRequest()
+
+        template = """{% load twitter_tags %}{% twitter_button %}"""
+        # "normal" / backwards-compatible - sets nothing, leading to the social credentials being attached to the current user
+        result = self.render(template, {'request': request})
+        self.assertEqual(result, """\n<form class="connect-button" name="login" method="post" action="/socialregistration/twitter/redirect/">\n\n\n<input type="image" onclick="this.form.submit();" src="http://apiwiki.twitter.com/f/1242697608/Sign-in-with-Twitter-lighter.png" />\n</form>\n""")
+
+        # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
+        result = self.render(template, {'request': request, 'content_object': Site.objects.get_current(),})
+        self.assertEqual(result, """\n<form class="connect-button" name="login" method="post" action="/socialregistration/twitter/redirect/?a=sites&m=site&i=1">\n\n\n<input type="image" onclick="this.form.submit();" src="http://apiwiki.twitter.com/f/1242697608/Sign-in-with-Twitter-lighter.png" />\n</form>\n""")
