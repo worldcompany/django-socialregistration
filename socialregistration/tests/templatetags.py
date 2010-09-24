@@ -150,3 +150,15 @@ class SocialRegistrationTemplateTagTests(TestCase):
         # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
         result = self.render(template, {'request': request, 'content_object': Site.objects.get_current(),})
         self.assertEqual(result, """\n<form class="connect-button" name="login" method="post" action="/socialregistration/twitter/redirect/?a=sites&m=site&i=1">\n\n\n<input type="image" onclick="this.form.submit();" src="http://apiwiki.twitter.com/f/1242697608/Sign-in-with-Twitter-lighter.png" />\n</form>\n""")
+
+    def test_object_to_facebook_button(self):
+        request = MockHttpRequest()
+
+        template = """{% load facebook_tags %}{% facebook_button %}"""
+        # "normal" / backwards-compatible - sets nothing, leading to the social credentials being attached to the current user
+        result = self.render(template, {'request': request})
+        self.assertEqual(result, """\n\n\n<form class="connect-button" name="login" method="post" action="/socialregistration/facebook/connect/">\n\n\n<input type="image" onclick="facebookConnect(this.form);return false;" src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_large_long.gif" />\n</form>\n""")
+
+        # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
+        result = self.render(template, {'request': request, 'content_object': Site.objects.get_current(),})
+        self.assertEqual(result, """\n\n\n<form class="connect-button" name="login" method="post" action="/socialregistration/facebook/connect/?a=sites&m=site&i=1">\n\n\n<input type="image" onclick="facebookConnect(this.form);return false;" src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_large_long.gif" />\n</form>\n""")

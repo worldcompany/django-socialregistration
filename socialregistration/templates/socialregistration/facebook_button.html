@@ -3,7 +3,7 @@
 <fb:login-button autologoutlink="true" perms="email,user_birthday,status_update,publish_stream"></fb:login-button>
 {% endcomment %}
 
-<form class="connect-button" name="login" method="post" action="{% if logged_in %}{% url facebook_connect %}{% else %}{% url facebook_login %}{% endif %}">
+<form class="connect-button" name="login" method="post" action="{% if logged_in %}{% url facebook_connect %}{% else %}{% url facebook_login %}{% endif %}{% if content_object.app_label %}?a={{ content_object.app_label }}&m={{ content_object.model }}&i={{ content_object.key }}{% endif %}">
 {% social_csrf_token %}
 {% if next %}
     <input type="hidden" name="next" value="{{ next }}" />
