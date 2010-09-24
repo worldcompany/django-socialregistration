@@ -17,4 +17,5 @@ def facebook_button(context):
         next = context['next']
     else:
         next = None
-    return dict(next=next, logged_in=logged_in)
+
+    return dict(next=next, logged_in=logged_in, MEDIA_URL=getattr(settings, 'MEDIA_URL', ''), STATIC_MEDIA_URL=getattr(settings, 'STATIC_MEDIA_URL', ''))
