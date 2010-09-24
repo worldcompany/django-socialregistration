@@ -1,4 +1,9 @@
 <form action="{% url openid_redirect %}" method="GET">
     <input type="text" name="openid_provider" />
+{% if content_object.app_label %}
+    <input type="hidden" name="a" value="{{ content_object.app_label }}">
+    <input type="hidden" name="m" value="{{ content_object.model }}">
+    <input type="hidden" name="i" value="{{ content_object.key }}">
+{% endif %}
     <input type="submit" value="Connect with OpenID" />
 </form>

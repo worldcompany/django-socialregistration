@@ -162,3 +162,15 @@ class SocialRegistrationTemplateTagTests(TestCase):
         # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
         result = self.render(template, {'request': request, 'content_object': Site.objects.get_current(),})
         self.assertEqual(result, """\n\n\n<form class="connect-button" name="login" method="post" action="/socialregistration/facebook/connect/?a=sites&m=site&i=1">\n\n\n<input type="image" onclick="facebookConnect(this.form);return false;" src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_large_long.gif" />\n</form>\n""")
+
+    def test_object_to_openid_button(self):
+        request = MockHttpRequest()
+
+        template = """{% load openid_tags %}{% openid_form %}"""
+        # "normal" / backwards-compatible - sets nothing, leading to the social credentials being attached to the current user
+        result = self.render(template, {'request': request})
+        self.assertEqual(result, """<form action="/socialregistration/openid/redirect/" method="GET">\n    <input type="text" name="openid_provider" />\n\n    <input type="submit" value="Connect with OpenID" />\n</form>\n""")
+
+        # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
+        result = self.render(template, {'request': request, 'content_object': Site.objects.get_current(),})
+        self.assertEqual(result, """<form action="/socialregistration/openid/redirect/" method="GET">\n    <input type="text" name="openid_provider" />\n\n    <input type="hidden" name="a" value="sites">\n    <input type="hidden" name="m" value="site">\n    <input type="hidden" name="i" value="1">\n\n    <input type="submit" value="Connect with OpenID" />\n</form>\n""")

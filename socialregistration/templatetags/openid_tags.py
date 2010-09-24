@@ -12,4 +12,12 @@ def openid_form(context):
         next = context['next']
     else:
         next = None
-    return dict(next=next, logged_in=logged_in, MEDIA_URL=getattr(settings, 'MEDIA_URL', ''), STATIC_MEDIA_URL=getattr(settings, 'STATIC_MEDIA_URL', ''))
+
+    if 'content_object' in context:
+        # need to use this info to pass a GET parameter to the redirect so the object can be used when the user comes back
+        obj = context['content_object']
+        cobj = {'app_label': obj._meta.app_label, 'model': obj._meta.module_name, 'key': obj.pk}
+    else:
+        cobj = {}
+
+    return dict(next=next, logged_in=logged_in, MEDIA_URL=getattr(settings, 'MEDIA_URL', ''), STATIC_MEDIA_URL=getattr(settings, 'STATIC_MEDIA_URL', ''), content_object=cobj)
