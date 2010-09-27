@@ -279,6 +279,7 @@ def openid_redirect(request):
     """
     request.session['next'] = _get_next(request)
     request.session['openid_provider'] = request.GET.get('openid_provider')
+    request.session['socialregistration_connect_object'] = get_object(request.GET)
 
     client = OpenID(
         request,
