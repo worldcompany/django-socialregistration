@@ -15,6 +15,7 @@ except ImportError:
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout as auth_logout
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 
 from socialregistration.forms import UserForm, ClaimForm, ExistingUser
@@ -234,12 +235,18 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
 
     return HttpResponseRedirect(_get_next(request))
 
+def get_object(info):
+    model = ContentType.objects.get_by_natural_key(app_label=info['a'], model=info['m']).model_class()
+    return model.objects.get(pk=info['i'])
+
 def oauth_redirect(request, consumer_key=None, secret_key=None,
     request_token_url=None, access_token_url=None, authorization_url=None,
     callback_url=None, parameters=None):
     """
     View to handle the OAuth based authentication redirect to the service provider
     """
+    request.session['socialregistration_connect_object'] = get_object(request.GET)
+
     request.session['next'] = _get_next(request)
     client = OAuthClient(request, consumer_key, secret_key,
         request_token_url, access_token_url, authorization_url, callback_url, parameters)
