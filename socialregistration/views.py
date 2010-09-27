@@ -162,7 +162,7 @@ def facebook_connect(request, template='socialregistration/facebook.html',
             context_instance=RequestContext(request))
 
     try:
-        profile = FacebookProfile.objects.get(uid=request.facebook.uid)
+        profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(User))
         profile.consumer_key = request.facebook.user['access_token']
         profile.secret = request.facebook.user['secret']
         profile.save()
