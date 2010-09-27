@@ -129,7 +129,6 @@ def facebook_login(request, template='socialregistration/facebook.html',
     """
     View to handle the Facebook login
     """
-    
     if request.facebook.uid is None:
         extra_context.update(dict(error=FB_ERROR))
         return render_to_response(template, extra_context,
@@ -156,19 +155,35 @@ def facebook_connect(request, template='socialregistration/facebook.html',
     """
     View to handle connecting existing django accounts with facebook
     """
-    if request.facebook.uid is None or request.user.is_authenticated() is False:
-        extra_context.update(dict(error=FB_ERROR))
-        return render_to_response(template, extra_context,
-            context_instance=RequestContext(request))
+    # for facebook the login is done in JS, so by the time it hits our view here there is no redirect step. Look for the querystring values and use that instead of worrying about session.
+    connect_object = get_object(request.GET)
+    if connect_object:
+        # this exists so that social credentials can be attached to any arbitrary object using the same callbacks.
+        # Under normal circumstances it will not be used. Put an object in request.session named 'socialregistration_connect_object' and it will be used instead.
+        # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
+        try:
+            # get the profile for this facebook UID and type of connected object
+            profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(connect_object.__class__))
+            profile.consumer_key = request.facebook.user['access_token']
+            profile.secret = request.facebook.user['secret']
+            profile.save()
+        except FacebookProfile.DoesNotExist:
+            FacebookProfile.objects.create(content_object=connect_object, uid=request.facebook.uid, \
+                consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
+    else:
+        if request.facebook.uid is None or request.user.is_authenticated() is False:
+            extra_context.update(dict(error=FB_ERROR))
+            return render_to_response(template, extra_context,
+                context_instance=RequestContext(request))
 
-    try:
-        profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(User))
-        profile.consumer_key = request.facebook.user['access_token']
-        profile.secret = request.facebook.user['secret']
-        profile.save()
-    except FacebookProfile.DoesNotExist:
-        profile = FacebookProfile.objects.create(content_object=request.user,
-            uid=request.facebook.uid, consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
+        try:
+            profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(User))
+            profile.consumer_key = request.facebook.user['access_token']
+            profile.secret = request.facebook.user['secret']
+            profile.save()
+        except FacebookProfile.DoesNotExist:
+            profile = FacebookProfile.objects.create(content_object=request.user,
+                uid=request.facebook.uid, consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
 
     return HttpResponseRedirect(_get_next(request))
 
@@ -191,6 +206,7 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
     Actually setup/login an account relating to a twitter user after the oauth
     process is finished successfully
     """
+
     client = OAuthTwitter(
         request, settings.TWITTER_CONSUMER_KEY,
         settings.TWITTER_CONSUMER_SECRET_KEY,
@@ -198,6 +214,7 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
     )
 
     user_info = client.get_user_info()
+
     try:
         oauth_token = request.session['oauth_api.twitter.com_access_token']['oauth_token']
     except KeyError:
@@ -207,37 +224,52 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
     except KeyError:
         oauth_token_secret = ''
 
-    if request.user.is_authenticated():
-        # Handling already logged in users connecting their accounts
+    if 'socialregistration_connect_object' in request.session and request.session['socialregistration_connect_object'] != None:
+        # this exists so that social credentials can be attached to any arbitrary object using the same callbacks.
+        # Under normal circumstances it will not be used. Put an object in request.session named 'socialregistration_connect_object' and it will be used instead.
+        # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
         try:
-            profile = TwitterProfile.objects.get(twitter_id=user_info['id'])
-        except TwitterProfile.DoesNotExist: # There can only be one profile!
-            profile = TwitterProfile.objects.create(content_object=request.user, twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
+            # get the profile for this Twitter ID and type of connected object
+            profile = TwitterProfile.objects.get(twitter_id=user_info['id'], content_type=ContentType.objects.get_for_model(request.session['socialregistration_connect_object'].__class__))
+        except TwitterProfile.DoesNotExist:
+            TwitterProfile.objects.create(content_object=request.session['socialregistration_connect_object'], twitter_id=user_info['id'], \
+                screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
 
-        return HttpResponseRedirect(_get_next(request))
+        del request.session['socialregistration_connect_object']
+    else:
+        if request.user.is_authenticated():
+            # Handling already logged in users connecting their accounts
+            try:
+                profile = TwitterProfile.objects.get(twitter_id=user_info['id'], content_type=ContentType.objects.get_for_model(User))
+            except TwitterProfile.DoesNotExist: # There can only be one profile!
+                profile = TwitterProfile.objects.create(content_object=request.user, twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
 
-    user = authenticate(twitter_id=user_info['id'])
+            return HttpResponseRedirect(_get_next(request))
 
-    if user is None:
-        request.session['socialregistration_profile'] = TwitterProfile(twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
-        request.session['socialregistration_user'] = User()
-        request.session['next'] = _get_next(request)
-        return HttpResponseRedirect(reverse('socialregistration_setup'))
+        user = authenticate(twitter_id=user_info['id'])
 
-    if not user.is_active:
-        return render_to_response(
-            account_inactive_template,
-            extra_context,
-            context_instance=RequestContext(request)
-        )
+        if user is None:
+            request.session['socialregistration_profile'] = TwitterProfile(twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
+            request.session['socialregistration_user'] = User()
+            request.session['next'] = _get_next(request)
+            return HttpResponseRedirect(reverse('socialregistration_setup'))
 
-    login(request, user)
+        if not user.is_active:
+            return render_to_response(
+                account_inactive_template,
+                extra_context,
+                context_instance=RequestContext(request)
+            )
+
+        login(request, user)
 
     return HttpResponseRedirect(_get_next(request))
 
 def get_object(info):
-    model = ContentType.objects.get_by_natural_key(app_label=info['a'], model=info['m']).model_class()
-    return model.objects.get(pk=info['i'])
+    if 'a' and 'm' in info:
+        model = ContentType.objects.get_by_natural_key(app_label=info['a'], model=info['m']).model_class()
+        return model.objects.get(pk=info['i'])
+    return None
 
 def oauth_redirect(request, consumer_key=None, secret_key=None,
     request_token_url=None, access_token_url=None, authorization_url=None,
@@ -313,32 +345,45 @@ def openid_callback(request, template='socialregistration/openid.html',
 
     if client.is_valid():
         identity = client.result.identity_url
-        if request.user.is_authenticated():
-            # Handling already logged in users just connecting their accounts
+
+        if 'socialregistration_connect_object' in request.session and request.session['socialregistration_connect_object'] != None:
+            # this exists so that social credentials can be attached to any arbitrary object using the same callbacks.
+            # Under normal circumstances it will not be used. Put an object in request.session named 'socialregistration_connect_object' and it will be used instead.
+            # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
             try:
-                profile = OpenIDProfile.objects.get(identity=identity, content_type=ContentType.objects.get_for_model(User))
-            except OpenIDProfile.DoesNotExist: # There can only be one profile with the same identity
-                profile = OpenIDProfile.objects.create(content_object=request.user,
-                    identity=identity)
+                # get the profile for this facebook UID and type of connected object
+                profile = OpenIDProfile.objects.get(identity=identity, content_type=ContentType.objects.get_for_model(request.session['socialregistration_connect_object'].__class__))
+            except OpenIDProfile.DoesNotExist:
+                OpenIDProfile.objects.create(content_object=request.session['socialregistration_connect_object'], identity=identity)
 
-            return HttpResponseRedirect(_get_next(request))
+            del request.session['socialregistration_connect_object']
+        else:
+            if request.user.is_authenticated():
+                # Handling already logged in users just connecting their accounts
+                try:
+                    profile = OpenIDProfile.objects.get(identity=identity, content_type=ContentType.objects.get_for_model(User))
+                except OpenIDProfile.DoesNotExist: # There can only be one profile with the same identity
+                    profile = OpenIDProfile.objects.create(content_object=request.user,
+                        identity=identity)
 
-        user = authenticate(identity=identity)
-        if user is None:
-            request.session['socialregistration_user'] = User()
-            request.session['socialregistration_profile'] = OpenIDProfile(
-                identity=identity
-            )
-            return HttpResponseRedirect(reverse('socialregistration_setup'))
+                return HttpResponseRedirect(_get_next(request))
 
-        if not user.is_active:
-            return render_to_response(
-                account_inactive_template,
-                extra_context,
-                context_instance=RequestContext(request)
-            )
+            user = authenticate(identity=identity)
+            if user is None:
+                request.session['socialregistration_user'] = User()
+                request.session['socialregistration_profile'] = OpenIDProfile(
+                    identity=identity
+                )
+                return HttpResponseRedirect(reverse('socialregistration_setup'))
 
-        login(request, user)
+            if not user.is_active:
+                return render_to_response(
+                    account_inactive_template,
+                    extra_context,
+                    context_instance=RequestContext(request)
+                )
+
+            login(request, user)
         return HttpResponseRedirect(_get_next(request))
 
     return render_to_response(
