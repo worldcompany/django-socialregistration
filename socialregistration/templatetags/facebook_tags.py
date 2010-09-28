@@ -18,7 +18,7 @@ def facebook_button(context):
     else:
         next = None
 
-    if 'content_object' in context:
+    if 'socialregistration_connect_object' in context:
         # need to use this info to pass a GET parameter to the redirect so the object can be used when the user comes back
         obj = context['socialregistration_connect_object']
         cobj = {'app_label': obj._meta.app_label, 'model': obj._meta.module_name, 'key': obj.pk}
