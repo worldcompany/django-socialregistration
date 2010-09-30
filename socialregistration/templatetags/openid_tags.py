@@ -1,5 +1,6 @@
 from django import template
 from django.conf import settings
+from socialregistration.models import OpenIDProfile
 
 register = template.Library()
 
@@ -21,3 +22,38 @@ def openid_form(context):
         cobj = {}
 
     return dict(next=next, logged_in=logged_in, MEDIA_URL=getattr(settings, 'MEDIA_URL', ''), STATIC_MEDIA_URL=getattr(settings, 'STATIC_MEDIA_URL', ''), content_object=cobj)
+
+class OpenIDInfoNode(template.Node):
+    def __init__(self, var_name):
+        self.var_name = var_name
+
+    def render(self, context):
+        # if the object is required, look for a Twitter account for it.
+        if 'socialregistration_connect_object' in context:
+            cobj = context['socialregistration_connect_object']
+        # if not, check for the current user
+        else:
+            cobj = context['request'].user
+
+        try:
+            profile = OpenIDProfile.objects.for_object(cobj)
+            context[self.var_name] = profile
+            return ''
+        except OpenIDProfile.DoesNotExist:
+            context[self.var_name] = None
+            return ''
+
+@register.tag
+def openid_info(parser, token):
+    """
+    Usage: {% openid_info as oi %} Returns their OpenID Profile.
+    """
+    try:
+        tag_info = token.split_contents()
+        if len(tag_info) == 3:
+            var_name = tag_info[2]
+            return OpenIDInfoNode(var_name)
+        else:
+            raise template.TemplateSyntaxError, "%r tag takes arguments." % token.contents.split()[0]
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag takes arguments." % token.contents.split()[0]

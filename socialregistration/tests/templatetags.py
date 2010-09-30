@@ -1,8 +1,10 @@
 from django import template
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.test import TestCase
+from socialregistration.models import FacebookProfile, TwitterProfile, OpenIDProfile
 
 class MockUser(object):
     auth = False
@@ -174,3 +176,94 @@ class SocialRegistrationTemplateTagTests(TestCase):
         # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
         result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current(),})
         self.assertEqual(result, """<form action="/socialregistration/openid/redirect/" method="GET">\n    <input type="text" name="openid_provider" />\n\n    <input type="hidden" name="a" value="sites">\n    <input type="hidden" name="m" value="site">\n    <input type="hidden" name="i" value="1">\n\n    <input type="submit" value="Connect with OpenID" />\n</form>\n""")
+
+    def test_facebook_info_with_object(self):
+        request = MockHttpRequest()
+
+        template = """{% load facebook_tags %}{% facebook_info as fb %}{% if fb %}yes{% else %}no{% endif %}"""
+        result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current()})
+        self.assertEqual(result, "no")
+
+        fbp = FacebookProfile.objects.create(content_object=Site.objects.get_current(), uid=1234567890, consumer_key='aaaaaa', consumer_secret='bbbbbb')
+
+        result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current()})
+        self.assertEqual(result, "yes")
+
+        fbp.delete()
+
+    def test_facebook_info_no_object(self):
+        u1 = User.objects.create(username='user1')
+        request = MockHttpRequest()
+        request.user = u1
+
+        template = """{% load facebook_tags %}{% facebook_info as fb %}{% if fb %}yes{% else %}no{% endif %}"""
+
+        result = self.render(template, {'request': request,})
+        self.assertEqual(result, "no")
+
+        fbp = FacebookProfile.objects.create(content_object=u1, uid=1234567890, consumer_key='aaaaaa', consumer_secret='bbbbbb')
+
+        result = self.render(template, {'request': request,})
+        self.assertEqual(result, "yes")
+
+        fbp.delete()
+
+    def test_twitter_info_with_object(self):
+        request = MockHttpRequest()
+
+        template = """{% load twitter_tags %}{% twitter_info as tw %}{% if tw %}yes{% else %}no{% endif %}"""
+        result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current()})
+        self.assertEqual(result, "no")
+
+        twp = TwitterProfile.objects.create(content_object=Site.objects.get_current(), twitter_id=1234567890, consumer_key='aaaaaa', consumer_secret='bbbbbb')
+
+        result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current()})
+        self.assertEqual(result, "yes")
+
+        twp.delete()
+
+    def test_twitter_info_no_object(self):
+        u1 = User.objects.create(username='user1')
+        request = MockHttpRequest()
+        request.user = u1
+
+        template = """{% load twitter_tags %}{% twitter_info as tw %}{% if tw %}yes{% else %}no{% endif %}"""
+        result = self.render(template, {'request': request,})
+        self.assertEqual(result, "no")
+
+        twp = TwitterProfile.objects.create(content_object=u1, twitter_id=1234567890, consumer_key='aaaaaa', consumer_secret='bbbbbb')
+
+        result = self.render(template, {'request': request,})
+        self.assertEqual(result, "yes")
+
+        twp.delete()
+
+    def test_openid_info_with_object(self):
+        request = MockHttpRequest()
+
+        template = """{% load openid_tags %}{% openid_info as oi %}{% if oi %}yes{% else %}no{% endif %}"""
+        result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current()})
+        self.assertEqual(result, "no")
+
+        oip = OpenIDProfile.objects.create(content_object=Site.objects.get_current(), identity='aa')
+
+        result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current()})
+        self.assertEqual(result, "yes")
+
+        oip.delete()
+
+    def test_openid_info_no_object(self):
+        u1 = User.objects.create(username='user1')
+        request = MockHttpRequest()
+        request.user = u1
+
+        template = """{% load openid_tags %}{% openid_info as oi %}{% if oi %}yes{% else %}no{% endif %}"""
+        result = self.render(template, {'request': request,})
+        self.assertEqual(result, "no")
+
+        oip = OpenIDProfile.objects.create(content_object=u1, identity='aa')
+
+        result = self.render(template, {'request': request,})
+        self.assertEqual(result, "yes")
+
+        oip.delete()
