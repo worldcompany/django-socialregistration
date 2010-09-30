@@ -9,7 +9,7 @@ from socialregistration.models import FacebookProfile, TwitterProfile, OpenIDPro
 class MockUser(object):
     auth = False
     def __init__(self, *args, **kwargs):
-        super(MockUser, self).__init__(*args, **kwargs)
+        super(MockUser, self).__init__()
         if kwargs.get('authenticated', False):
             self.auth = True
 
