@@ -14,6 +14,8 @@ urlpatterns = patterns('',
 
     url('^logout/$', 'socialregistration.views.logout',
         name='social_logout'),
+
+    url('^disconnect/(?P<network>\d+)/(?P<object_type>\d+)/(?P<object_id>\d+)/$', 'socialregistration.views.disconnect', name='disconnect'),
 )
 
 # Setup Facebook URLs if there's an API key specified

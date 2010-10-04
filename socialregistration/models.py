@@ -1,5 +1,6 @@
 from django.db import models
 
+from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -26,6 +27,9 @@ class FacebookProfile(models.Model):
     def authenticate(self):
         return authenticate(uid=self.uid)
 
+    def get_disconnect_url(self):
+        return reverse('disconnect', kwargs={'network': ContentType.objects.get_for_model(self.__class__).pk, 'object_type': self.content_type.pk, 'object_id': self.object_id})
+
 class TwitterProfile(models.Model):
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType)
@@ -45,6 +49,9 @@ class TwitterProfile(models.Model):
     def authenticate(self):
         return authenticate(twitter_id=self.twitter_id)
 
+    def get_disconnect_url(self):
+        return reverse('disconnect', kwargs={'network': ContentType.objects.get_for_model(self.__class__).pk, 'object_type': self.content_type.pk, 'object_id': self.object_id})
+
 class OpenIDProfile(models.Model):
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType)
@@ -60,6 +67,9 @@ class OpenIDProfile(models.Model):
 
     def authenticate(self):
         return authenticate(identity=self.identity)
+
+    def get_disconnect_url(self):
+        return reverse('disconnect', kwargs={'network': ContentType.objects.get_for_model(self.__class__).pk, 'object_type': self.content_type.pk, 'object_id': self.object_id})
 
 class OpenIDStore(models.Model):
     site = models.ForeignKey(Site, default=Site.objects.get_current)

@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.template import RequestContext
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.utils.translation import gettext as _
@@ -27,6 +28,36 @@ from socialregistration.models import FacebookProfile, TwitterProfile, OpenIDPro
 FB_ERROR = _('We couldn\'t validate your Facebook credentials')
 
 GENERATE_USERNAME = bool(getattr(settings, 'SOCIALREGISTRATION_GENERATE_USERNAME', False))
+
+def post_disconnect_redirect_url(instance, request=None):
+    # first check to see if the object has a URL
+    try:
+        return instance.get_absolute_url()
+    except AttributeError:
+        pass
+    # then their session
+    if request:
+        if 'SOCIALREGISTRATION_DISCONNECT_URL' in request.session:
+            return request.session['SOCIALREGISTRATION_DISCONNECT_URL']
+    # fall back to the setting, if it exists
+    url = getattr(settings, 'SOCIALREGISTRATION_DISCONNECT_URL', '')
+    if url:
+        return url
+    else:
+        # no clue - go to the root URL I guess
+        return '/'
+
+def disconnect(request, network, object_type, object_id):
+    if request.method == 'POST':
+        profile_model = ContentType.objects.get(pk=network).model_class() # retrieve the model of the network profile
+        profile = profile_model.objects.get(content_type__id=object_type, object_id=object_id)
+
+        profile.delete()
+        model = ContentType.objects.get(pk=object_type).model_class()
+        content_object = model.objects.get(pk=object_id)
+        return HttpResponseRedirect(post_disconnect_redirect_url(content_object))
+    else:
+        return HttpResponse('Need to build a form for this.')
 
 def _get_next(request):
     """
