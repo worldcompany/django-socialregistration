@@ -48,16 +48,19 @@ def post_disconnect_redirect_url(instance, request=None):
         return '/'
 
 def disconnect(request, network, object_type, object_id):
-    if request.method == 'POST':
-        profile_model = ContentType.objects.get(pk=network).model_class() # retrieve the model of the network profile
-        profile = profile_model.objects.get(content_type__id=object_type, object_id=object_id)
+    profile_model = ContentType.objects.get(pk=network).model_class() # retrieve the model of the network profile
+    profile = profile_model.objects.get(content_type__id=object_type, object_id=object_id)
+    model = ContentType.objects.get(pk=object_type).model_class()
+    content_object = model.objects.get(pk=object_id)
 
+    if request.method == 'POST':
         profile.delete()
-        model = ContentType.objects.get(pk=object_type).model_class()
-        content_object = model.objects.get(pk=object_id)
         return HttpResponseRedirect(post_disconnect_redirect_url(content_object))
     else:
-        return HttpResponse('Need to build a form for this.')
+        return render_to_response('socialregistration/confirm_disconnect.html', {
+            'profile': profile,
+            'instance': content_object,
+        }, context_instance=RequestContext(request))
 
 def _get_next(request):
     """

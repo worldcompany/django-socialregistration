@@ -1,0 +1,8 @@
+{% block content %}
+<form action='{{ instance.get_disconnect_url }}' method='POST'>
+{% csrf_token %}
+    Are you sure you want to disconnect the account connected to {{ instance }}?
+
+    <input type='submit' value='Disconnect'>
+</form>
+{% endblock content %}
