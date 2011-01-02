@@ -143,7 +143,7 @@ def setup(request, template='socialregistration/setup.html',
         social_user.username = str(uuid.uuid4())[:30]
         social_user.save()
 
-        social_profile.user = social_user
+        social_profile.content_object = social_user
         social_profile.save()
 
         # Authenticate and login
