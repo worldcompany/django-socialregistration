@@ -40,11 +40,15 @@ class FacebookInfoNode(template.Node):
         else:
             cobj = context['request'].user
 
-        try:
-            profile = FacebookProfile.objects.for_object(cobj)
-            context[self.var_name] = profile
-            return ''
-        except FacebookProfile.DoesNotExist:
+        if cobj.is_authenticated():
+            try:
+                profile = FacebookProfile.objects.for_object(cobj)
+                context[self.var_name] = profile
+                return ''
+            except FacebookProfile.DoesNotExist:
+                context[self.var_name] = None
+                return ''
+        else:
             context[self.var_name] = None
             return ''
 

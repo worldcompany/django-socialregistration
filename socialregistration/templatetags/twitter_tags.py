@@ -35,11 +35,15 @@ class TwitterInfoNode(template.Node):
         else:
             cobj = context['request'].user
 
-        try:
-            profile = TwitterProfile.objects.for_object(cobj)
-            context[self.var_name] = profile
-            return ''
-        except TwitterProfile.DoesNotExist:
+        if cobj.is_authenticated(): # don't try this if they're anonymous
+            try:
+                profile = TwitterProfile.objects.for_object(cobj)
+                context[self.var_name] = profile
+                return ''
+            except TwitterProfile.DoesNotExist:
+                context[self.var_name] = None
+                return ''
+        else:
             context[self.var_name] = None
             return ''
 
