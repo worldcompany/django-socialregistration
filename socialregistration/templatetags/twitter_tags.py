@@ -31,19 +31,18 @@ class TwitterInfoNode(template.Node):
         # if the object is required, look for a Twitter account for it.
         if 'socialregistration_connect_object' in context:
             cobj = context['socialregistration_connect_object']
-        # if not, check for the current user
+        # if not, check for the current user and make sure they're logged in and not anonymous
         else:
             cobj = context['request'].user
-
-        if cobj.is_authenticated(): # don't try this if they're anonymous
-            try:
-                profile = TwitterProfile.objects.for_object(cobj)
-                context[self.var_name] = profile
-                return ''
-            except TwitterProfile.DoesNotExist:
+            if not cobj.is_authenticated():
                 context[self.var_name] = None
                 return ''
-        else:
+
+        try:
+            profile = TwitterProfile.objects.for_object(cobj)
+            context[self.var_name] = profile
+            return ''
+        except TwitterProfile.DoesNotExist:
             context[self.var_name] = None
             return ''
 

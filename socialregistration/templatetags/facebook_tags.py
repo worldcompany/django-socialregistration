@@ -36,19 +36,18 @@ class FacebookInfoNode(template.Node):
         # if the object is required, look for a Facebook account for it.
         if 'socialregistration_connect_object' in context:
             cobj = context['socialregistration_connect_object']
-        # if not, check for the current user
+        # if not, check for the current user and make sure they're logged in and not anonymous
         else:
             cobj = context['request'].user
-
-        if cobj.is_authenticated():
-            try:
-                profile = FacebookProfile.objects.for_object(cobj)
-                context[self.var_name] = profile
-                return ''
-            except FacebookProfile.DoesNotExist:
+            if not cobj.is_authenticated():
                 context[self.var_name] = None
                 return ''
-        else:
+
+        try:
+            profile = FacebookProfile.objects.for_object(cobj)
+            context[self.var_name] = profile
+            return ''
+        except FacebookProfile.DoesNotExist:
             context[self.var_name] = None
             return ''
 
