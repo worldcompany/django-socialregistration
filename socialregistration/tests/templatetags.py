@@ -147,11 +147,11 @@ class SocialRegistrationTemplateTagTests(TestCase):
         template = """{% load twitter_tags %}{% twitter_button %}"""
         # "normal" / backwards-compatible - sets nothing, leading to the social credentials being attached to the current user
         result = self.render(template, {'request': request})
-        self.assertEqual(result, """\n<form class="connect-button" name="login" method="post" action="/socialregistration/twitter/redirect/">\n\n\n<input type="image" onclick="this.form.submit();" src="http://apiwiki.twitter.com/f/1242697608/Sign-in-with-Twitter-lighter.png" />\n</form>\n""")
+        self.assertEqual('''action="/socialregistration/twitter/redirect/"''' in result, True) # that's the important part - how it's submitted or what image / button is used doesn't matter
 
         # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
         result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current(),})
-        self.assertEqual(result, """\n<form class="connect-button" name="login" method="post" action="/socialregistration/twitter/redirect/?a=sites&m=site&i=1">\n\n\n<input type="image" onclick="this.form.submit();" src="http://apiwiki.twitter.com/f/1242697608/Sign-in-with-Twitter-lighter.png" />\n</form>\n""")
+        self.assertEqual('''action="/socialregistration/twitter/redirect/?a=sites&m=site&i=1"''' in result, True) # that's the important part - how it's submitted or what image / button is used doesn't matter
 
     def test_object_to_facebook_button(self):
         request = MockHttpRequest()
@@ -159,11 +159,11 @@ class SocialRegistrationTemplateTagTests(TestCase):
         template = """{% load facebook_tags %}{% facebook_button %}"""
         # "normal" / backwards-compatible - sets nothing, leading to the social credentials being attached to the current user
         result = self.render(template, {'request': request})
-        self.assertEqual(result, """\n\n\n<form class="connect-button" name="login" method="post" action="/socialregistration/facebook/connect/">\n\n\n<input type="image" onclick="facebookConnect(this.form);return false;" src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_large_long.gif" />\n</form>\n""")
+        self.assertEqual('''action="/socialregistration/facebook/connect/"''' in result, True) # that's the important part - how it's submitted or what image / button is used doesn't matter
 
         # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
         result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current(),})
-        self.assertEqual(result, """\n\n\n<form class="connect-button" name="login" method="post" action="/socialregistration/facebook/connect/?a=sites&m=site&i=1">\n\n\n<input type="image" onclick="facebookConnect(this.form);return false;" src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_large_long.gif" />\n</form>\n""")
+        self.assertEqual('''action="/socialregistration/facebook/connect/?a=sites&m=site&i=1"''' in result, True) # that's the important part - how it's submitted or what image / button is used doesn't matter
 
     def test_object_to_openid_button(self):
         request = MockHttpRequest()
@@ -171,11 +171,13 @@ class SocialRegistrationTemplateTagTests(TestCase):
         template = """{% load openid_tags %}{% openid_form %}"""
         # "normal" / backwards-compatible - sets nothing, leading to the social credentials being attached to the current user
         result = self.render(template, {'request': request})
-        self.assertEqual(result, """<form action="/socialregistration/openid/redirect/" method="GET">\n    <input type="text" name="openid_provider" />\n\n    <input type="submit" value="Connect with OpenID" />\n</form>\n""")
+        self.assertEqual('''action="/socialregistration/openid/redirect/"''' in result, True) # that's the important part - how it's submitted or what image / button is used doesn't matter
 
         # leads to the item in content_object being stashed and the social credentials being attached to it instead of the current user
         result = self.render(template, {'request': request, 'socialregistration_connect_object': Site.objects.get_current(),})
-        self.assertEqual(result, """<form action="/socialregistration/openid/redirect/" method="GET">\n    <input type="text" name="openid_provider" />\n\n    <input type="hidden" name="a" value="sites">\n    <input type="hidden" name="m" value="site">\n    <input type="hidden" name="i" value="1">\n\n    <input type="submit" value="Connect with OpenID" />\n</form>\n""")
+        self.assertEqual('''action="/socialregistration/openid/redirect/"''' in result, True) # that's the important part - how it's submitted or what image / button is used doesn't matter
+        self.assertEqual('''<input type="hidden" name="m" value="site">''' in result, True)
+        self.assertEqual('''<input type="hidden" name="i" value="1">''' in result, True)
 
     def test_facebook_info_with_object(self):
         request = MockHttpRequest()
