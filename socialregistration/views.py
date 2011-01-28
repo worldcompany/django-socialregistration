@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+from django.contrib import messages
 from django.template import RequestContext
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -191,33 +192,42 @@ def facebook_connect(request, template='socialregistration/facebook.html',
     """
     # for facebook the login is done in JS, so by the time it hits our view here there is no redirect step. Look for the querystring values and use that instead of worrying about session.
     connect_object = get_object(request.GET)
-    if connect_object:
-        # this exists so that social credentials can be attached to any arbitrary object using the same callbacks.
-        # Under normal circumstances it will not be used. Put an object in request.session named 'socialregistration_connect_object' and it will be used instead.
-        # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
-        try:
-            # get the profile for this facebook UID and type of connected object
-            profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(connect_object.__class__))
-            profile.consumer_key = request.facebook.user['access_token']
-            profile.secret = request.facebook.user['secret']
-            profile.save()
-        except FacebookProfile.DoesNotExist:
-            FacebookProfile.objects.create(content_object=connect_object, uid=request.facebook.uid, \
-                consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
-    else:
-        if request.facebook.uid is None or request.user.is_authenticated() is False:
-            extra_context.update(dict(error=FB_ERROR))
-            return render_to_response(template, extra_context,
-                context_instance=RequestContext(request))
 
+    if getattr(request.facebook, 'user', False): # only go this far if the user authorized our application and there is user info
+        if connect_object:
+            # this exists so that social credentials can be attached to any arbitrary object using the same callbacks.
+            # Under normal circumstances it will not be used. Put an object in request.session named 'socialregistration_connect_object' and it will be used instead.
+            # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
+            try:
+                # get the profile for this facebook UID and type of connected object
+                profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(connect_object.__class__))
+                profile.consumer_key = request.facebook.user['access_token']
+                profile.secret = request.facebook.user['secret']
+                profile.save()
+            except FacebookProfile.DoesNotExist:
+                FacebookProfile.objects.create(content_object=connect_object, uid=request.facebook.uid, \
+                    consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
+        else:
+            if request.facebook.uid is None or request.user.is_authenticated() is False:
+                extra_context.update(dict(error=FB_ERROR))
+                return render_to_response(template, extra_context,
+                    context_instance=RequestContext(request))
+
+            try:
+                profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(User))
+                profile.consumer_key = request.facebook.user['access_token']
+                profile.secret = request.facebook.user['secret']
+                profile.save()
+            except FacebookProfile.DoesNotExist:
+                profile = FacebookProfile.objects.create(content_object=request.user,
+                    uid=request.facebook.uid, consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
+    else:
+        messages.info(request, "You must authorize the Facebook application in order to link your account.")
         try:
-            profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(User))
-            profile.consumer_key = request.facebook.user['access_token']
-            profile.secret = request.facebook.user['secret']
-            profile.save()
-        except FacebookProfile.DoesNotExist:
-            profile = FacebookProfile.objects.create(content_object=request.user,
-                uid=request.facebook.uid, consumer_key=request.facebook.user['access_token'], consumer_secret=request.facebook.user['secret'])
+            redirect = request.META['HTTP_REFERER'] # send them where they came from
+        except KeyError:
+            redirect = _get_next(request) # and fall back to what the view would use otherwise
+        return HttpResponseRedirect(redirect)
 
     return HttpResponseRedirect(_get_next(request))
 
@@ -328,6 +338,15 @@ def oauth_callback(request, consumer_key=None, secret_key=None,
     """
     client = OAuthClient(request, consumer_key, secret_key, request_token_url,
         access_token_url, authorization_url, callback_url, parameters)
+
+    # the user has denied us - throw that in messages to be displayed and send them back where they came from
+    if 'denied' in request.GET:
+        messages.info(request, "You must authorize the application in order to link your account.")
+        try:
+            redirect = request.META['HTTP_REFERER'] # send them where they came from
+        except KeyError:
+            redirect = _get_next(request) # and fall back to what the view would use otherwise
+        return HttpResponseRedirect(redirect)
 
     extra_context.update(dict(oauth_client=client))
 
