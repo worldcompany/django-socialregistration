@@ -199,8 +199,8 @@ def facebook_connect(request, template='socialregistration/facebook.html',
             # Under normal circumstances it will not be used. Put an object in request.session named 'socialregistration_connect_object' and it will be used instead.
             # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
             try:
-                # get the profile for this facebook UID and type of connected object
-                profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(connect_object.__class__))
+                # get the profile for this facebook UID and connected object
+                profile = FacebookProfile.objects.get(uid=request.facebook.uid, content_type=ContentType.objects.get_for_model(connect_object.__class__), object_id=connect_object.pk)
                 profile.consumer_key = request.facebook.user['access_token']
                 profile.secret = request.facebook.user['secret']
                 profile.save()
