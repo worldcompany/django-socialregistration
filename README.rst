@@ -35,10 +35,12 @@ Configuration
 Facebook Connect
 ----------------
 #. Set up a Facebook application at http://www.facebook.com/developers/
+
    * Set up new app
    * Name and agree to their terms
    * Under "Web Site" set your site URL (main) and domain.
    * Grab "App ID" (FACEBOOK_API_KEY) and "App Secret" (FACEBOOK_SECRET_KEY)
+
 #. Add ``FACEBOOK_API_KEY`` and ``FACEBOOK_SECRET_KEY`` to your settings file representing the keys you were given by Facebook.
 #. Add ``socialregistration.auth.FacebookAuth`` to ``AUTHENTICATION_BACKENDS`` in your settings file.
 #. Add ``socialregistration.middleware.FacebookMiddleware`` to ``MIDDLEWARE_CLASSES`` in your settings file.
@@ -51,11 +53,13 @@ Facebook Connect
 Twitter
 -------
 #. Set up a Twitter application at http://dev.twitter.com/apps/
+
    * Register a new app
    * Name, describe, and set other fields.
    * Callback URL will be your site's url + /socialregistration/twitter/callback/ unless you set up your URLconf differently than the test projects.
    * Choose Read/Write or Read only wisely - it's better to only ask for what you need but you can't go from read-only to read/write later without user approval.
    * Grab "Consumer Key" (TWITTER_CONSUMER_KEY) and "Consumer Secret" (TWITTER_CONSUMER_SECRET_KEY)
+
 #. Add the following variables to your ``settings.py`` file with the values you were given by Twitter::
 
     TWITTER_CONSUMER_KEY
