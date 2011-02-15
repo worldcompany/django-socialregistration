@@ -102,7 +102,8 @@ INSTALLED_APPS = (
 
 TWITTER_REQUEST_TOKEN_URL = 'http://twitter.com/oauth/request_token'
 TWITTER_ACCESS_TOKEN_URL = 'http://twitter.com/oauth/access_token'
-TWITTER_AUTHORIZATION_URL = 'http://twitter.com/oauth/authenticate'
+TWITTER_AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize' # I use authorize when doing read/write and authenticate when only using Twitter for login
+#TWITTER_AUTHORIZATION_URL = 'http://twitter.com/oauth/authenticate'
 
 TEST_ROLE = 'objectconnect'
 
