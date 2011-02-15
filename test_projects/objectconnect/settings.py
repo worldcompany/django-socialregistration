@@ -71,6 +71,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'socialregistration.middleware.FacebookMiddleware',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'socialregistration.auth.TwitterAuth',
+    'socialregistration.auth.FacebookAuth',
+    'socialregistration.auth.OpenIDAuth',
 )
 
 ROOT_URLCONF = 'objectconnect.urls'
@@ -91,6 +99,10 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'socialregistration',
 )
+
+TWITTER_REQUEST_TOKEN_URL = 'http://twitter.com/oauth/request_token'
+TWITTER_ACCESS_TOKEN_URL = 'http://twitter.com/oauth/access_token'
+TWITTER_AUTHORIZATION_URL = 'http://twitter.com/oauth/authenticate'
 
 TEST_ROLE = 'objectconnect'
 
