@@ -8,10 +8,10 @@ methods based on third party sites.
 
 Requirements
 ============
-- django
-- oauth2
-- python-openid
-- python-sdk_ 
+- django_
+- oauth2_
+- python-openid_
+- python-sdk_
 
 Installation
 ============
@@ -97,4 +97,7 @@ Other Information
 If you don't wish your users to be redirected to the setup view to create a username but rather have
 a random username generated for them, set ``SOCIALREGISTRATION_GENERATE_USERNAME`` in your settings file to ``True``.
 
-.. _python-sdk: http://github.com/facebook/python-sdk
+.. _django: http://code.djangoproject.com/
+.. _oauth2: https://github.com/simplegeo/python-oauth2
+.. _python-openid: https://github.com/openid/python-openid
+.. _python-sdk: https://github.com/facebook/python-sdk
