@@ -1,5 +1,3 @@
-# Django settings for objectconnect project.
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -89,8 +87,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
+    'socialregistration',
 )
+
+TEST_ROLE = 'objectconnect'
+
+# import the qa settings for this setup. Not try/caught because they /need/ to be there to specify DB and API keys. An example is in sample_qa_settings.py - copy to the root of your $PYTHONPATH and edit as necessary
+from qa_settings import *
