@@ -262,11 +262,17 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
     try:
         oauth_token = request.session['oauth_api.twitter.com_access_token']['oauth_token']
     except KeyError:
-        oauth_token = ''
+        try:
+            oauth_token = request.session['oauth_twitter.com_access_token']['oauth_token']
+        except:
+            oauth_token = ''
     try:
         oauth_token_secret = request.session['oauth_api.twitter.com_access_token']['oauth_token_secret']
     except KeyError:
-        oauth_token_secret = ''
+        try:
+            oauth_token_secret = request.session['oauth_twitter.com_access_token']['oauth_token_secret']
+        except:
+            oauth_token_secret = ''
 
     if 'socialregistration_connect_object' in request.session and request.session['socialregistration_connect_object'] != None:
         # this exists so that social credentials can be attached to any arbitrary object using the same callbacks.
@@ -274,7 +280,7 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
         # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
         try:
             # get the profile for this Twitter ID and type of connected object
-            profile = TwitterProfile.objects.get(twitter_id=user_info['id'], content_type=ContentType.objects.get_for_model(request.session['socialregistration_connect_object'].__class__))
+            profile = TwitterProfile.objects.get(twitter_id=user_info['id'], content_type=ContentType.objects.get_for_model(request.session['socialregistration_connect_object'].__class__), object_id=request.session['socialregistration_connect_object'].pk)
         except TwitterProfile.DoesNotExist:
             TwitterProfile.objects.create(content_object=request.session['socialregistration_connect_object'], twitter_id=user_info['id'], \
                 screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
@@ -405,7 +411,7 @@ def openid_callback(request, template='socialregistration/openid.html',
             # After the connection is made it will redirect to request.session value 'socialregistration_connect_redirect' or settings.LOGIN_REDIRECT_URL or /
             try:
                 # get the profile for this facebook UID and type of connected object
-                profile = OpenIDProfile.objects.get(identity=identity, content_type=ContentType.objects.get_for_model(request.session['socialregistration_connect_object'].__class__))
+                profile = OpenIDProfile.objects.get(identity=identity, content_type=ContentType.objects.get_for_model(request.session['socialregistration_connect_object'].__class__), object_id=request.session['socialregistration_connect_object'].pk)
             except OpenIDProfile.DoesNotExist:
                 OpenIDProfile.objects.create(content_object=request.session['socialregistration_connect_object'], identity=identity)
 
