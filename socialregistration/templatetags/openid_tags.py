@@ -34,6 +34,9 @@ class OpenIDInfoNode(template.Node):
         # if not, check for the current user
         else:
             cobj = context['request'].user
+            if not cobj.is_authenticated():
+                context[self.var_name] = None
+                return ''
 
         try:
             profile = OpenIDProfile.objects.for_object(cobj)
