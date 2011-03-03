@@ -1,0 +1,33 @@
+{% load twitter_tags facebook_tags openid_tags %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<a href='/accounts/logout/'>Log out</a><br>
+
+{% facebook_info as fb_info %}
+{% if not fb_info %}
+  {% facebook_button %}
+  {% facebook_js %}
+{% else %}
+  Facebook is connected. <a href='{{ fb_info.get_disconnect_url }}'>Disconnect</a>.
+{% endif %}
+
+{% twitter_info as tw_info %}
+{% if not tw_info %}
+  {% twitter_button %}
+{% else %}
+  Twitter is connected. <a href='{{ tw_info.get_disconnect_url }}'>Disconnect.</a>
+{% endif %}
+
+{% openid_info as oi_info %}
+{% if not oi_info %}
+  {% openid_form %}
+{% else %}
+  OpenID is connected. <a href='{{ oi_info.get_disconnect_url }}'>Disconnect.</a>
+{% endif %}
