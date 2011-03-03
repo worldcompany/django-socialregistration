@@ -1,0 +1,212 @@
+Manual Testing:
+	No custom object defined:
+		Don't pass in a socialregistration_connect_object in the context. This will link the credentials to a user instead of another object.
+		setting SOCIALREGISTRATION_GENERATE_USERNAME True:
+			"userconnect_generate_username"
+			Facebook:
+				- Connect a user to an existing account (through login) is not possible if socialregistration generates their username / account - no testing needed
+				- Create a new account
+					- Ensure user is not logged in
+					- Connect a new Facebook account
+					- Ensure a user was created
+					- Ensure that user had a password assigned
+					- Ensure logins are repeatable with that account
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Connect a user to an existing account (already logged in)
+					- Log in as the existing user via password
+					- Connect a new Facebook account
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Remove the site from the "allowed apps" list at Facebook, attempt to reconnect and decline. You should be sent back and get a message telling you you need to allow before it will work
+
+			Twitter:
+				- Connect a user to an existing account (through login) is not possible if socialregistration generates their username / account - no testing needed
+				- Create a new account
+					- Ensure user is not logged in
+					- Connect a new Twitter account
+					- Ensure a user was created
+					- Ensure that user had a password assigned
+					- Ensure logins are repeatable with that account
+					- Twitter Profile should have their twitter username stored
+					- If the app is configured for read/write, oauth keys should be set in the Twitter Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Connect a user to an existing account (already logged in)
+					- Log in as the existing user via password
+					- Connect a new Twitter account
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- If the app is configured for read/write, oauth keys should be set in the Twitter Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Remove the site from the "allowed apps" list at Twitter, attempt to reconnect and decline. You should be sent back and get a message telling you you need to allow before it will work
+		
+			OpenID:
+				- Connect a user to an existing account (through login) is not possible if socialregistration generates their username / account - no testing needed
+				- Create a new account
+					- Ensure user is not logged in
+					- Connect a new OpenID account
+					- Ensure a user was created
+					- Ensure that user had a password assigned
+					- Ensure logins are repeatable with that account
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Connect a user to an existing account (already logged in)
+					- Log in as the existing user via password
+					- Connect a new OpenID account
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+	
+		setting SOCIALREGISTRATION_GENERATE_USERNAME False:
+			"userconnect_manual_username"
+			Facebook:
+				- Connect a user to an existing account (through login)
+					- Ensure user is not logged in
+					- Connect a new Facebook account
+					- Log in as the existing user via password
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Create a new account
+					- Ensure user is not logged in
+					- Connect a new Facebook account
+					- Ensure a user was created
+					- Ensure that user had a password assigned
+					- Ensure logins are repeatable with that account
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Connect a user to an existing account (already logged in)
+					- Ensure user is logged in
+					- Connect a new Facebook account
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+
+			Twitter:
+				- Connect a user to an existing account (through login)
+					- Ensure user is not logged in
+					- Connect a new Facebook account
+					- Log in as the existing user via password
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- Twitter Profile should have their twitter username stored
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Create a new account
+					- Ensure user is not logged in
+					- Connect a new Facebook account
+					- Ensure a user was created
+					- Ensure that user had a password assigned
+					- Ensure logins are repeatable with that account
+					- Twitter Profile should have their twitter username stored
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Connect a user to an existing account (already logged in)
+					- Ensure user is logged in
+					- Connect a new Facebook account
+					- Log in as the existing user via password
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- Twitter Profile should have their twitter username stored
+					- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+
+			OpenID:
+				- Connect a user to an existing account (through login)
+					- Ensure user is not logged in
+					- Connect a new OpenID account
+					- Log in as the existing user via password
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Create a new account
+					- Ensure user is not logged in
+					- Connect a new OpenID account
+					- Ensure a user was created
+					- Ensure that user had a password assigned
+					- Ensure logins are repeatable with that account
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+				- Connect a user to an existing account (already logged in)
+					- Log in as the existing user via password
+					- Connect a new OpenID account
+					- Ensure the current user was used
+					- Ensure that user's password was not overwritten
+					- Ensure logins are repeatable with that account
+					- Does the disconnection view work properly?
+						- Removes profile
+						- Sends you somewhere useful
+
+	Custom object defined:
+		"objectconnect"
+
+		Pass in a socialregistration_connect_object in the context. This will link the credentials to a that object instead of a user.
+		Facebook:
+			- Connect to an object 
+				- Connect a new Facebook account
+				- Ensure the correct object was connected
+				- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+			- Connect to another object
+				- Connect the same Facebook account to another object
+				- Ensure the correct object was connected and that the existing connection was preserved
+				- If the app is configured for read/write, oauth keys should be set in the Facebook Profile
+			- Does the disconnection view work properly?
+				- Removes profile (for just the object requested, leaves other alone)
+				- Sends you somewhere useful
+				- Then removes profile for the other object - still correct?
+				- Sends you somewhere useful
+
+		Twitter:
+			- Connect to an object 
+				- Connect a new Twitter account
+				- Ensure the correct object was connected
+				- Twitter Profile should have their twitter username stored
+				- If the app is configured for read/write, oauth keys should be set in the Twitter Profile
+			- Connect to another object
+				- Connect the same Twitter account to another object
+				- Ensure the correct object was connected and that the existing connection was preserved
+				- Twitter Profile should have their twitter username stored
+				- If the app is configured for read/write, oauth keys should be set in the Twitter Profile
+			- Does the disconnection view work properly?
+				- Removes profile (for just the object requested, leaves other alone)
+				- Sends you somewhere useful
+				- Then removes profile for the other object - still correct?
+				- Sends you somewhere useful
