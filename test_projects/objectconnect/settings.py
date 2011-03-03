@@ -100,6 +100,15 @@ INSTALLED_APPS = (
     'socialregistration',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request",
+)
+
 TWITTER_REQUEST_TOKEN_URL = 'http://twitter.com/oauth/request_token'
 TWITTER_ACCESS_TOKEN_URL = 'http://twitter.com/oauth/access_token'
 TWITTER_AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize' # I use authorize when doing read/write and authenticate when only using Twitter for login
@@ -109,3 +118,5 @@ TEST_ROLE = 'objectconnect'
 
 # import the qa settings for this setup. Not try/caught because they /need/ to be there to specify DB and API keys. An example is in sample_qa_settings.py - copy to the root of your $PYTHONPATH and edit as necessary
 from qa_settings import *
+
+app_settings(locals())
