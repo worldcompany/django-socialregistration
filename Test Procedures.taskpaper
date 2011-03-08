@@ -4,6 +4,7 @@ Manual Testing:
 		setting SOCIALREGISTRATION_GENERATE_USERNAME True:
 			"userconnect_generate_username"
 			Facebook:
+				- Remove the site from the "allowed apps" list at Facebook, attempt to reconnect and decline. You should be sent back and get a message telling you you need to allow before it will work
 				- Connect a user to an existing account (through login) is not possible if socialregistration generates their username / account - no testing needed
 				- Create a new account
 					- Ensure user is not logged in
@@ -25,9 +26,9 @@ Manual Testing:
 					- Does the disconnection view work properly?
 						- Removes profile
 						- Sends you somewhere useful
-				- Remove the site from the "allowed apps" list at Facebook, attempt to reconnect and decline. You should be sent back and get a message telling you you need to allow before it will work
 
 			Twitter:
+				- Remove the site from the "allowed apps" list at Twitter, attempt to reconnect and decline. You should be sent back and get a message telling you you need to allow before it will work
 				- Connect a user to an existing account (through login) is not possible if socialregistration generates their username / account - no testing needed
 				- Create a new account
 					- Ensure user is not logged in
@@ -50,7 +51,6 @@ Manual Testing:
 					- Does the disconnection view work properly?
 						- Removes profile
 						- Sends you somewhere useful
-				- Remove the site from the "allowed apps" list at Twitter, attempt to reconnect and decline. You should be sent back and get a message telling you you need to allow before it will work
 		
 			OpenID:
 				- Connect a user to an existing account (through login) is not possible if socialregistration generates their username / account - no testing needed
@@ -111,7 +111,7 @@ Manual Testing:
 			Twitter:
 				- Connect a user to an existing account (through login)
 					- Ensure user is not logged in
-					- Connect a new Facebook account
+					- Connect a new Twitter account
 					- Log in as the existing user via password
 					- Ensure the current user was used
 					- Ensure that user's password was not overwritten
