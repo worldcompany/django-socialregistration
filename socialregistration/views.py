@@ -101,6 +101,7 @@ def setup(request, template='socialregistration/setup.html',
                     form.save()
                     user = form.profile.authenticate()
                     user.set_unusable_password() # we want something there, but it doesn't need to be anything they can actually use - otherwise a password must be assigned manually before the user can be banned or any other administrative action can be taken
+                    user.save()
                     login(request, user)
 
                     if 'socialregistration_user' in request.session: del request.session['socialregistration_user']
@@ -126,7 +127,6 @@ def setup(request, template='socialregistration/setup.html',
                     form.save()
 
                     user = form.profile.authenticate()
-                    user.set_unusable_password() # we want something there, but it doesn't need to be anything they can actually use - otherwise a password must be assigned manually before the user can be banned or any other administrative action can be taken
                     login(request, user)
 
                     if 'socialregistration_user' in request.session: del request.session['socialregistration_user']
@@ -146,6 +146,7 @@ def setup(request, template='socialregistration/setup.html',
         social_user.username = str(uuid.uuid4())[:30]
         social_user.save()
         social_user.set_unusable_password() # we want something there, but it doesn't need to be anything they can actually use - otherwise a password must be assigned manually before the user can be banned or any other administrative action can be taken
+        social_user.save()
 
         social_profile.content_object = social_user
         social_profile.save()
