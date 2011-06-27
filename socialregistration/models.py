@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.sites.models import Site 
 
-from socialregistration.managers import FacebookProfileManager, TwitterProfileManager, OpenIDProfileManager
+from socialregistration.managers import SocialProfileManager
 
 class FacebookProfile(models.Model):
     object_id = models.PositiveIntegerField()
@@ -19,7 +19,7 @@ class FacebookProfile(models.Model):
     consumer_key = models.CharField('AKA access_token', max_length=128)
     consumer_secret = models.CharField('AKA secret', max_length=128)
 
-    objects = FacebookProfileManager()
+    objects = SocialProfileManager()
 
     def __unicode__(self):
         return u'%s: %s' % (self.content_object, self.uid)
@@ -41,7 +41,7 @@ class TwitterProfile(models.Model):
     consumer_key = models.CharField(max_length=128)
     consumer_secret = models.CharField(max_length=128)
 
-    objects = TwitterProfileManager()
+    objects = SocialProfileManager()
 
     def __unicode__(self):
         return u'%s: %s' % (self.content_object, self.twitter_id)
@@ -60,7 +60,7 @@ class OpenIDProfile(models.Model):
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     identity = models.TextField()
 
-    objects = OpenIDProfileManager()
+    objects = SocialProfileManager()
 
     def __unicode__(self):
         return u'OpenID Profile for %s, via provider %s' % (self.content_object, self.identity)
