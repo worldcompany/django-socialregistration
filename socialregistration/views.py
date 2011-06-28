@@ -100,6 +100,19 @@ def setup(request, template='socialregistration/setup.html',
         return render_to_response(
             template, dict(error=True), context_instance=RequestContext(request))
 
+    # The following associates the correct existing user if they have logged
+    # in via a different site on the same database. It allows them to skip the
+    # setup process because they have done this before on a different site,
+    # therefore they have a password-less user that would be impossible to
+    # associate using the ClaimForm.
+    profile_model = social_profile.__class__
+    existing_profiles = profile_model.objects.filter(**{profile_model.remote_id_field: social_profile.remote_id})
+    if existing_profiles:
+        existing_profile = existing_profiles[0]
+        social_profile.content_object = existing_profile.content_object
+        social_profile.save()
+        return _authenticate_login_redirect(request)
+
     if not GENERATE_USERNAME:
         # User can pick own username
         if not request.method == "POST":
