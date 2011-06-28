@@ -24,6 +24,9 @@ class BaseSocialProfile(models.Model):
     def authenticate(self):
         return authenticate(**{self.remote_id_field: self.remote_id})
 
+    def get_disconnect_url(self):
+        return reverse('disconnect', kwargs={'network': ContentType.objects.get_for_model(self.__class__).pk, 'object_type': self.content_type.pk, 'object_id': self.object_id})
+
     class Meta:
         abstract = True
 
@@ -37,8 +40,6 @@ class FacebookProfile(BaseSocialProfile):
     def __unicode__(self):
         return u'%s: %s' % (self.content_object, self.uid)
 
-    def get_disconnect_url(self):
-        return reverse('disconnect', kwargs={'network': ContentType.objects.get_for_model(self.__class__).pk, 'object_type': self.content_type.pk, 'object_id': self.object_id})
 
 class TwitterProfile(BaseSocialProfile):
     twitter_id = models.PositiveIntegerField()
@@ -51,8 +52,6 @@ class TwitterProfile(BaseSocialProfile):
     def __unicode__(self):
         return u'%s: %s' % (self.content_object, self.twitter_id)
 
-    def get_disconnect_url(self):
-        return reverse('disconnect', kwargs={'network': ContentType.objects.get_for_model(self.__class__).pk, 'object_type': self.content_type.pk, 'object_id': self.object_id})
 
 class OpenIDProfile(BaseSocialProfile):
     identity = models.TextField()
@@ -62,8 +61,6 @@ class OpenIDProfile(BaseSocialProfile):
     def __unicode__(self):
         return u'OpenID Profile for %s, via provider %s' % (self.content_object, self.identity)
 
-    def get_disconnect_url(self):
-        return reverse('disconnect', kwargs={'network': ContentType.objects.get_for_model(self.__class__).pk, 'object_type': self.content_type.pk, 'object_id': self.object_id})
 
 class OpenIDStore(models.Model):
     site = models.ForeignKey(Site, default=Site.objects.get_current)
