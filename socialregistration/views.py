@@ -78,6 +78,16 @@ def _get_next(request):
     else:
         return getattr(settings, 'LOGIN_REDIRECT_URL', '/')
 
+def _authenticate_login_redirect(request):
+    """
+    Authenticates user, clears unneeded session variables, and redirects them.
+    """
+    user = request.session['socialregistration_profile'].authenticate()
+    login(request, user)
+    if 'socialregistration_user' in request.session: del request.session['socialregistration_user']
+    if 'socialregistration_profile' in request.session: del request.session['socialregistration_profile']
+    return HttpResponseRedirect(_get_next(request))
+
 def setup(request, template='socialregistration/setup.html',
     form_class=UserForm, extra_context=dict(), claim_form_class=ClaimForm):
     """
@@ -102,12 +112,8 @@ def setup(request, template='socialregistration/setup.html',
                     user = form.profile.authenticate()
                     user.set_unusable_password() # we want something there, but it doesn't need to be anything they can actually use - otherwise a password must be assigned manually before the user can be banned or any other administrative action can be taken
                     user.save()
-                    login(request, user)
+                    return _authenticate_login_redirect(request)
 
-                    if 'socialregistration_user' in request.session: del request.session['socialregistration_user']
-                    if 'socialregistration_profile' in request.session: del request.session['socialregistration_profile']
-
-                    return HttpResponseRedirect(_get_next(request))
             except ExistingUser:
                 # see what the error is. if it's just an existing user, we want to let them claim it.
                 if 'submitted' in request.POST:
@@ -126,13 +132,7 @@ def setup(request, template='socialregistration/setup.html',
                 if form.is_valid():
                     form.save()
 
-                    user = form.profile.authenticate()
-                    login(request, user)
-
-                    if 'socialregistration_user' in request.session: del request.session['socialregistration_user']
-                    if 'socialregistration_profile' in request.session: del request.session['socialregistration_profile']
-
-                    return HttpResponseRedirect(_get_next(request))
+                    return _authenticate_login_redirect(request)
 
                 extra_context['claim_account'] = True
 
@@ -151,14 +151,7 @@ def setup(request, template='socialregistration/setup.html',
         social_profile.content_object = social_user
         social_profile.save()
 
-        # Authenticate and login
-        user = social_profile.authenticate()
-        login(request, user)
-
-        # Clear & Redirect
-        if 'socialregistration_user' in request.session: del request.session['socialregistration_user']
-        if 'socialregistration_profile' in request.session: del request.session['socialregistration_profile']
-        return HttpResponseRedirect(_get_next(request))
+        return _authenticate_login_redirect(request)
 
 if has_csrf:
     setup = csrf_protect(setup)
