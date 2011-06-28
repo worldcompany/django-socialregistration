@@ -294,7 +294,7 @@ def twitter(request, account_inactive_template='socialregistration/account_inact
         if request.user.is_authenticated():
             # Handling already logged in users connecting their accounts
             try:
-                profile = TwitterProfile.objects.get(twitter_id=user_info['id'], content_type=ContentType.objects.get_for_model(User))
+                profile = TwitterProfile.objects.by_remote_id(user_info['id']).get(content_type=ContentType.objects.get_for_model(User))
             except TwitterProfile.DoesNotExist: # There can only be one profile!
                 profile = TwitterProfile.objects.create(content_object=request.user, twitter_id=user_info['id'], screenname=user_info['screen_name'], consumer_key=oauth_token, consumer_secret=oauth_token_secret)
 
