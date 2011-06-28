@@ -22,3 +22,6 @@ class SocialProfileManager(models.Manager):
 
     def for_object(self, obj):
         return self.for_object_content_type(obj).get(object_id=obj.pk)
+
+    def by_remote_id(self, identity):
+        return self.on_current_site().filter(**{self.model.remote_id_field: identity})
